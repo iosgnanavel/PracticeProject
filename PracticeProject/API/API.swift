@@ -5,26 +5,17 @@
 
 import Foundation
 
+/// It is API protocol used for common Api handling
 protocol API {
-    init()
-
-    func fetchUsers(excludingUserWithID: String?, success: (UsersList) -> Void, failure: (FetchError) -> Void)
+    
+    /// Getting the response from user API's
+    /// - Parameters:
+    ///   - excludingUserWithID: It is exclude the user from user list
+    ///   - success: get the user list response
+    ///   - failure: get the error message
+    func fetchUsers(excludingUserWithID: String?, success: @escaping (UsersList?) -> Void, failure: @escaping (FetchError?) -> Void)
 }
 
-extension API {
-//    static func make() -> API {
-//        // TODO: Return the concrete implementation of API
-//    }
-}
+typealias UsersList = [UserModel]
 
-// TODO: Create a data type representing users-list (according to expected JSON response)
-// (See the JSON response at: https://jsonplaceholder.typicode.com/users)
-//
-typealias UsersList = Any
-
-// TODO (Bonus): Create a more specific error type.
-// This can help identify the nature of a particular failure case.
-// e.g. network timeout, badly formatted request or failing to decode/deserialize
-// a response could cause failure in a network request.
-//
-typealias FetchError = Any
+typealias FetchError = String
