@@ -14,7 +14,11 @@ struct UserModel: Codable, Identifiable {
     let address: AddressModel?
     let company: CompanyModel?
 }
-
+extension UserModel: Equatable {
+    static func ==(lhs: Self, rhs: Self) -> Bool {
+        return lhs.id == rhs.id
+    }
+}
 // MARK: - AddressModel
 struct AddressModel: Codable {
     let city: String?
