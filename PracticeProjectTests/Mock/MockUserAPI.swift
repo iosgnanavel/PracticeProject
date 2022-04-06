@@ -10,11 +10,16 @@ import Foundation
 
 /// MockUserAPI is mock api for testing the user api
 class MockUserAPI: API {
-    let mockUserList: [UserModel]?
+    required init() {
+        
+    }
+    
+    var mockUserList: [UserModel]?
     
     /// Initializer of MockUserAPI
     /// - Parameter userList: Mock User List
-    init(userList: [UserModel]? = []) {
+    convenience init(userList: [UserModel]? = []) {
+        self.init()
         self.mockUserList = userList
     }
     
@@ -23,16 +28,10 @@ class MockUserAPI: API {
     ///   - excludingUserWithID: It is exclude the user from local mock user list
     ///   - success: get the user list from local mock user list
     ///   - failure: get the error
-    func fetchUsers(excludingUserWithID: String?, success: @escaping (UsersList?) -> Void, failure: @escaping (FetchError?) -> Void) {
+    func fetchUsers(success: @escaping (UsersList?) -> Void, failure: @escaping (FetchError?) -> Void) {
         guard let data = mockUserList else {
-            return failure("No List Found")
+            return failure(APIError("No List Found"))
         }
-        // Return the list to the caller in reverse order
-        var users: [UserModel] = data.reversed()
-        // Remove the excluding UserID from the user response
-        if let excludeUserID = Int(excludingUserWithID ?? "") {
-            users.removeAll(where: {$0.id == excludeUserID})
-        }
-        success(users)
+        success(data)
     }
 }

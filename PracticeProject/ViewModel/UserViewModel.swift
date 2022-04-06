@@ -16,7 +16,7 @@ class UserViewModel: ObservableObject {
     var errorMessage: String = ""
 
     let request: API
-    init(request: API = UserAPI()) {
+    init(request: API = UserAPI.make()) {
         self.request = request
     }
     
@@ -24,19 +24,31 @@ class UserViewModel: ObservableObject {
     /// - Parameter excludingUserWithID: It is excluding the selected user
     func loadData(excludingUserWithID: String) {
         self.loading = true
-        request.fetchUsers(excludingUserWithID: excludingUserWithID) { userList in
-            self.loading = false
-            guard let users = userList else {
-                self.errorMessage = "No user data found"
-                self.userList = []
-                return
+        request.fetchUsers() { [weak self] userList in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.loading = false
+                guard var users = userList else {
+                    self.errorMessage = "No user data found"
+                    self.userList = []
+                    return
+                }
+                self.errorMessage = ""
+                // Return the list to the caller in reverse order
+                users = users.reversed()
+                // Remove the excluding UserID from the user response
+                if let excludeUserID = Int(excludingUserWithID) {
+                    users.removeAll(where: {$0.id == excludeUserID})
+                }
+                self.userList = users
             }
-            self.errorMessage = ""
-            self.userList = users
-        } failure: { error in
-            self.loading = false
-            self.errorMessage = error?.debugDescription ?? "Something went wrong, please try again"
-            self.userList = []
+        } failure: { [weak self] error in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                self.loading = false
+                self.errorMessage = error?.localizedDescription ?? "Something went wrong, please try again"
+                self.userList = []
+            }
         }
     }
 }
