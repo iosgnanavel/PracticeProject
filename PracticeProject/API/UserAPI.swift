@@ -15,24 +15,38 @@ class UserAPI : API {
         
     }
     
-    func fetchUsers(success: @escaping (UsersList?) -> Void, failure: @escaping (FetchError?) -> Void) {
+    func fetchUsers(complitionHandler: @escaping (UsersList?, FetchError?) -> Void) {
         guard Reachability.isConnectedToNetwork() else {
-            failure(APIError("Check your network connection, please try again."))
+            complitionHandler(nil, .network(description: "Check your network connection, please try again."))
             return
         }
         guard let url = URL(string: "\(apiBaseURL)/users") else { return }
         URLSession.shared.dataTask(with: url) { data, response, error in
+            // Error
+            if let errorResponse = error {
+                complitionHandler(nil, .network(description: errorResponse.localizedDescription))
+                return
+            }
+            // HTTP response
+            if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+                complitionHandler(nil, .unexpected(code: httpResponse.statusCode))
+                return
+            }
+            // Data
             guard let data = data else {
-                failure(APIError("\(error?.localizedDescription ?? "No Data Found")"))
+                complitionHandler(nil, .invalidData(description: "Invalid Data"))
                 return
             }
             do {
                 // Swift's Decoding Custom Type to deserialize the JSON response
                 let users = try JSONDecoder().decode([UserModel].self, from: data)
-                
-                success(users)
+                if users.count > 0 {
+                    complitionHandler(users, nil)
+                } else {
+                    complitionHandler(nil, .invalidData(description: "No Data Found"))
+                }
             } catch(let error) {
-                failure(APIError("Data is invalid: \(error.localizedDescription)"))
+                complitionHandler(nil, .decoding(description: error.localizedDescription))
             }
         }.resume()
     }

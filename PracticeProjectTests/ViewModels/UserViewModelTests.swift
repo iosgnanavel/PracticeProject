@@ -32,21 +32,24 @@ class UserViewModelTests: XCTestCase {
     }
     
     func testUserViewModelSuccessFetchUserList() throws {
-        userViewModel?.loadData(excludingUserWithID: "")
-        
-        XCTAssertGreaterThan(userViewModel?.userList.count ?? 0, 1, "NO User Found")
+        DispatchQueue.main.async {
+            self.userViewModel?.loadData(excludingUserWithID: "")
+            XCTAssertGreaterThan(self.userViewModel?.userList.count ?? 0, 1, "NO User Found")
+        }
     }
     func testUserViewModelUserListWithExcludingOneUser() throws {
-        userViewModel?.loadData(excludingUserWithID: "100")
-        
-        XCTAssertEqual(userViewModel?.userList.count ?? 0, 1, "Not Excluded the user id 100")
+        DispatchQueue.main.async {
+            self.userViewModel?.loadData(excludingUserWithID: "100")
+            
+            XCTAssertEqual(self.userViewModel?.userList.count ?? 0, 1, "Not Excluded the user id 100")
+        }
     }
     func testUserViewModelUserListIsReversed() throws {
-        userViewModel?.loadData(excludingUserWithID: "")
-        print("mockList.reversed(): \(mockList.reversed())")
-        print("mockList.reversed(): \((userViewModel?.userList ?? []))")
-        if mockList.reversed() != (userViewModel?.userList ?? []) {
-            XCTFail("Should Equal after reversed")
+        DispatchQueue.main.async {
+            self.userViewModel?.loadData(excludingUserWithID: "")
+            if self.mockList.reversed() != (self.userViewModel?.userList ?? []) {
+                XCTFail("Should Equal after reversed")
+            }
         }
     }
 }

@@ -24,14 +24,11 @@ class MockUserAPI: API {
     }
     
     /// Getting the response from mock user API's
-    /// - Parameters:
-    ///   - excludingUserWithID: It is exclude the user from local mock user list
-    ///   - success: get the user list from local mock user list
-    ///   - failure: get the error
-    func fetchUsers(success: @escaping (UsersList?) -> Void, failure: @escaping (FetchError?) -> Void) {
+    func fetchUsers(complitionHandler: @escaping (UsersList?, FetchError?) -> Void) {
         guard let data = mockUserList else {
-            return failure(APIError("No List Found"))
+            complitionHandler(nil, .invalidData(description: "No Data Found"))
+            return
         }
-        success(data)
+        complitionHandler(data, nil)
     }
 }
