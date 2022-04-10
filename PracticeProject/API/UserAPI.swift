@@ -20,7 +20,10 @@ class UserAPI : API {
             complitionHandler(nil, .network(description: "Check your network connection, please try again."))
             return
         }
-        guard let url = URL(string: "\(apiBaseURL)/users") else { return }
+        guard let url = URL(string: "\(apiBaseURL)/users") else {
+            complitionHandler(nil, .network(description: "Check your network connection, please try again."))
+            return
+        }
         URLSession.shared.dataTask(with: url) { data, response, error in
             // Error
             if let errorResponse = error {
